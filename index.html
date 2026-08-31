@@ -2,6 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root {
   --header-h: 58px;
@@ -9,9 +13,9 @@
   --line: #111;
 }
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif; background:#f3f4f6; color:#111; }
+html,body { margin:0; padding:0; width:100%; height:100%; min-height:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif; background:#f3f4f6; color:#111; }
 button,input { font:inherit; }
-#app { width:100%; height:100%; display:flex; flex-direction:column; }
+#app { width:100%; height:100%; min-height:100%; display:flex; flex-direction:column; }
 header {
   height:var(--header-h); flex:0 0 var(--header-h);
   display:flex; align-items:center; gap:8px; padding:8px 10px;
@@ -135,15 +139,26 @@ header {
 #mask { position:fixed; inset:0; background:rgba(0,0,0,.12); z-index:29; display:none; }
 #mask.show { display:block; }
 @media (max-width:700px) {
-  header { padding:7px 8px; gap:6px; }
+  :root { --header-h:54px; }
+  html,body,#app { width:100%; height:100%; min-height:100%; }
+  body { overscroll-behavior:none; }
+  header { padding:7px 8px; gap:6px; width:100%; }
   .title { font-size:15px; }
   .status { display:none; }
   .iconBtn { min-width:38px; width:38px; height:38px; }
-  #stage { width:100vw; min-width:0; }
+  #stageWrap { width:100%; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  #stage { width:100%; max-width:none; min-width:0; margin:0; }
   .car { width:25%; }
   .car.parking { width:25%; }
   .car.outside { width:9%; }
   .carRows { grid-template-columns:1fr; }
+  #departureSheet { width:100%; }
+  .depPicker { grid-template-columns:1fr 1fr; }
+}
+@media (max-width:380px) {
+  .depPicker { grid-template-columns:1fr; }
+  .depBtns { grid-template-columns:1fr; }
+  #outsideZone .zoneSub { display:none; }
 }
 
 /* V15: ダブルタップは予定日時入力専用。外出中への自動移動は行わない */
@@ -231,7 +246,7 @@ const CAR_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAxUAAAF3CAYAAAD
 
 // ===== GitHub Pages -> GAS API 設定 =====
 // GASのウェブアプリURLを下記へ貼り付けてください。
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzKtSPEHHx4OSKP6lf4NVctzsXNhFMRQIw835xQxHXkXKFTYahwZ0cIq8XqGnA2sM8Z/exec';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzTgOoWzSke4BoOTvWNoZgIHpmph5cscgQY5_VoxMX0qKpDw7N0-ZJcXDxcW3LbfYms/exec';
 const API_KEY = 'hirox';
 
 function apiCall(action, payload={}) {
