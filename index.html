@@ -153,7 +153,8 @@ header {
   .car.outside { width:9%; }
   .carRows { grid-template-columns:1fr; }
   #departureSheet { width:100%; }
-  .depPicker { grid-template-columns:1fr 1fr; }
+  .depPicker { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
+  .depInput { font-size:16px; padding-left:8px; padding-right:8px; }
 }
 @media (max-width:380px) {
   .depPicker { grid-template-columns:1fr; }
@@ -176,10 +177,10 @@ header {
 #departureSheet.open { transform:translateY(0); }
 .depHead { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
 .depHead strong { margin-right:auto; }
-.depPicker { display:grid; grid-template-columns:1.1fr .9fr; gap:10px; }
-.depField { min-width:0; }
+.depPicker { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; }
+.depField { min-width:0; width:100%; overflow:hidden; }
 .depLabel { display:block; font-size:12px; font-weight:800; color:#555; margin:0 0 5px 2px; }
-.depInput { width:100%; min-height:48px; border:1px solid #bbb; border-radius:10px; padding:10px; font-size:17px; background:#fff; }
+.depInput { display:block; width:100%; min-width:0; max-width:100%; min-height:48px; border:1px solid #bbb; border-radius:10px; padding:10px 9px; font-size:17px; background:#fff; box-sizing:border-box; }
 .depTime { appearance:auto; -webkit-appearance:menulist; }
 .depBtns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
 .depBtns button { border:1px solid #bbb; border-radius:10px; padding:11px 6px; background:#fff; font-weight:700; }
@@ -246,7 +247,7 @@ const CAR_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAxUAAAF3CAYAAAD
 
 // ===== GitHub Pages -> GAS API 設定 =====
 // GASのウェブアプリURLを下記へ貼り付けてください。
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzTgOoWzSke4BoOTvWNoZgIHpmph5cscgQY5_VoxMX0qKpDw7N0-ZJcXDxcW3LbfYms/exec';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbzWsrgoXXKcZFaiAHW91tTP0As79s5D3Dv1b1CNWxEZgIV3UW8iEzWAWpLpSi9wK6Pw/exec';
 const API_KEY = 'hirox';
 
 function apiCall(action, payload={}) {
