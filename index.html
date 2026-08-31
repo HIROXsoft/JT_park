@@ -186,6 +186,58 @@ header {
 .depBtns button { border:1px solid #bbb; border-radius:10px; padding:11px 6px; background:#fff; font-weight:700; }
 .depBtns .primary { background:#111; color:#fff; border-color:#111; }
 
+
+/* V18: iPhoneで日付/時刻の枠を完全に同寸法へ統一 */
+.depPicker {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+  align-items: end;
+}
+.depField { min-width:0; width:100%; overflow:visible; }
+.depInput {
+  display:block;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  height:52px;
+  min-height:52px;
+  margin:0;
+  padding:0 12px;
+  border:1px solid #bbb;
+  border-radius:10px;
+  background:#fff;
+  box-sizing:border-box !important;
+  font-size:17px;
+  line-height:52px;
+}
+#depDate {
+  -webkit-appearance:none;
+  appearance:none;
+  text-align:center;
+  text-align-last:center;
+}
+#depDate::-webkit-date-and-time-value {
+  text-align:center;
+  margin:0;
+  padding:0;
+}
+#depDate::-webkit-calendar-picker-indicator {
+  position:absolute;
+  right:8px;
+  opacity:.55;
+}
+#depTime {
+  height:52px;
+  min-height:52px;
+  padding-left:12px;
+  padding-right:34px;
+}
+@media (max-width:380px) {
+  .depPicker { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+  .depInput { font-size:16px; padding-left:7px; padding-right:7px; }
+  #depTime { padding-right:28px; }
+}
+
 </style>
 </head>
 <body>
