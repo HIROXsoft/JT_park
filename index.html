@@ -416,6 +416,7 @@ function apiCall(action, payload={}) {
 }
 
 const stage = document.getElementById('stage');
+const stageWrap = document.getElementById('stageWrap');
 const statusEl = document.getElementById('status');
 const hint = document.getElementById('hint');
 const drawer = document.getElementById('drawer');
@@ -712,26 +713,64 @@ function startDrag(ev, car, el) {
   dragging={
     id:car.id, moved:false, sx:ev.clientX, sy:ev.clientY,
     pointerId:ev.pointerId, grabOffset,
-    lastPointer:downPoint
+    lastPointer:downPoint,
+    clientX:ev.clientX,
+    clientY:ev.clientY,
+    autoScrollRaf:0
   };
   el.classList.add('dragging');
   try { el.setPointerCapture(ev.pointerId); } catch(e) {}
 
-  const move = e => {
-    if (!dragging || dragging.pointerId!==e.pointerId) return;
-    const pp = stagePoint(e);
+  // V28: ドラッグ中に画面上端/下端へ近づけると、その方向へ自動スクロール。
+  // 指を動かさずにスクロールしている最中も、車アイコンを指位置へ追従させる。
+  const updateDraggedCarAtClient = (clientX, clientY) => {
+    const pseudoEvent = {clientX, clientY};
+    const pp = stagePoint(pseudoEvent);
     dragging.lastPointer = pp;
 
     const x=clamp(pp.x-dragging.grabOffset.x,3,97);
     const y=clamp(pp.y-dragging.grabOffset.y,1,98.5);
-    if (Math.hypot(e.clientX-dragging.sx,e.clientY-dragging.sy)>5) dragging.moved=true;
-
     car.x=+x.toFixed(2); car.y=+y.toFixed(2);
     el.style.left=car.x+'%'; el.style.top=car.y+'%';
-    // V26: 上側→下側、下側→上側、外出枠へ移動中もリアルタイムでサイズ変更。
     applyVisualAreaClass(el, car, pp);
     const activeArea = getOutsideArea(pp);
     setOutsideGlow(activeArea ? activeArea.id : null);
+  };
+
+  const autoScrollTick = () => {
+    if (!dragging || dragging.pointerId!==ev.pointerId) return;
+
+    const rect = stageWrap.getBoundingClientRect();
+    const edge = Math.min(110, Math.max(70, rect.height * 0.16));
+    let dy = 0;
+
+    if (dragging.clientY < rect.top + edge) {
+      const strength = clamp((rect.top + edge - dragging.clientY) / edge, 0, 1);
+      dy = -(4 + 22 * strength);
+    } else if (dragging.clientY > rect.bottom - edge) {
+      const strength = clamp((dragging.clientY - (rect.bottom - edge)) / edge, 0, 1);
+      dy = 4 + 22 * strength;
+    }
+
+    if (dy !== 0) {
+      const before = stageWrap.scrollTop;
+      stageWrap.scrollTop += dy;
+      if (stageWrap.scrollTop !== before) {
+        dragging.moved = true;
+        updateDraggedCarAtClient(dragging.clientX, dragging.clientY);
+      }
+    }
+
+    dragging.autoScrollRaf = requestAnimationFrame(autoScrollTick);
+  };
+  dragging.autoScrollRaf = requestAnimationFrame(autoScrollTick);
+
+  const move = e => {
+    if (!dragging || dragging.pointerId!==e.pointerId) return;
+    dragging.clientX = e.clientX;
+    dragging.clientY = e.clientY;
+    if (Math.hypot(e.clientX-dragging.sx,e.clientY-dragging.sy)>5) dragging.moved=true;
+    updateDraggedCarAtClient(e.clientX, e.clientY);
   };
 
   const up = e => {
@@ -743,6 +782,7 @@ function startDrag(ev, car, el) {
 
     const dragInfo = dragging;
     const moved=dragInfo.moved;
+    if (dragInfo.autoScrollRaf) cancelAnimationFrame(dragInfo.autoScrollRaf);
     dragging=null;
     el.classList.remove('dragging');
     setOutsideGlow(null);
